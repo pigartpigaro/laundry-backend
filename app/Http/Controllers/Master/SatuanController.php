@@ -12,9 +12,11 @@ class SatuanController extends Controller
 {
     public function listdata()
     {
-        $data = Satuan::where('flag', '=', '')
-        ->orWhere('flag', '=', null)
-        ->when(request('q') !== '' || request('q') !== null, function($x){
+        $data = Satuan::where(function($query) {
+        $query->where('flag', '!=', '1')
+            ->orWhereNull('flag');
+        })
+        ->when(request('q'), function($x){
            $x->where('satuan', 'like', '%' . request('q') . '%')
            ->orWhere('kodesatuan', 'like', '%' . request('q') . '%');
         })

@@ -13,9 +13,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-Route::get('/{any}', function () {
-    return file_get_contents(public_path('index.html')); // Arahkan ke file index.html
-})->where('any', '.*');
+Route::get('/', function () {
+    return view('welcome');
+});
+// Route::get('/{any}', function () {
+//     return view('index'); // Arahkan ke file index.html Quasar
+// })->where('any', '.*');

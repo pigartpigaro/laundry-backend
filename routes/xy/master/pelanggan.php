@@ -10,5 +10,5 @@ Route::group([
 ], function () {
     Route::get('/listdata', [PelangganController::class, 'listdata']);
     Route::post('/savedata', [PelangganController::class, 'savedata']);
-    Route::post('/delete', [PelangganController::class, 'delete']);
+    Route::post('/deletedata', [PelangganController::class, 'deletedata']);
 });

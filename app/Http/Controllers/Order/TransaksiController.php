@@ -34,8 +34,9 @@ class TransaksiController extends Controller
     public function saveorder(Request $request)
     {
         $request->validate([
-            'pelanggan' => 'required|string|max:255', // Validasi untuk header
-            'rincians' => 'required|array|min:1', // Pastikan rincians ada dan tidak kosong
+            'pelanggan' => 'required|string',
+            'alamat' => 'required|string',
+            'nohp' => 'required|string',
             'rincians.*.produk' => 'required|string|max:255', // Validasi produk di setiap rincian
         ]);
 
@@ -53,10 +54,9 @@ class TransaksiController extends Controller
             DB::beginTransaction();
             $tgl = date('Y-m-d');
             $time = date('H:i:s');
-            $save = Transaksi::updateOrCreate(
-                [
-                    'no_nota' => $nonota
-                ],
+           // Simpan/update transaksi utama
+            $transaksi = Transaksi::updateOrCreate(
+                ['no_nota' => $nonota],
                 [
                     'tanggal' => $tgl,
                     'time' => $time,
@@ -66,26 +66,36 @@ class TransaksiController extends Controller
                     'nohp' => $request->nohp,
                 ]
             );
-            foreach ($request->rincians as $rinci){
-                $save->rincians()->create(
-                    [
-                    'no_nota' => $save->no_nota,
-                    'kodeproduk' => $rinci['kodeproduk'] ?? '',
-                    'produk' => $rinci['produk'] ?? '' ,
-                    'kategori' => $rinci['kategori'] ?? '' ,
-                    'satuan' => $rinci['satuan'] ?? '' ,
-                    'kuantitas' => $rinci['kuantitas'] ?? '' ,
-                    'harga' => $rinci['harga'] ?? '' ,
-                    'subtotal' => $rinci['subtotal'] ?? '' ,
-                    'keterangan' => $rinci['keterangan'] ?? '' ,
-                    ]);
-            }
+
+        // Hapus semua rincian lama untuk transaksi ini
+        Transaksirinci::where('no_nota', $nonota)->delete();
+
+        // Siapkan data rincian baru dengan menghitung subtotal
+        $rincianData = array_map(function($item) use ($nonota) {
+            return [
+                'no_nota' => $nonota,
+                'kodeproduk' => $item['kodeproduk'],
+                'produk' => $item['produk'],
+                'kategori' => $item['kategori'],
+                'satuan' => $item['satuan'],
+                'kuantitas' => $item['kuantitas'],
+                'harga' => $item['harga'],
+                'subtotal' => $item['kuantitas'] * $item['harga'],
+                'created_at' => now(),
+                'updated_at' => now()
+            ];
+        }, $request->rincians);
+
+        // Insert semua rincian sekaligus
+        Transaksirinci::insert($rincianData);
+
             DB::commit();
 
         return new JsonResponse(
                 [
                     'message' => 'Data Berhasil disimpan...!!!',
-                    'result' => $save,
+                    'nomer' => $nonota,
+                    'result' => $transaksi,
                 ], 200);
 
         } catch (\Exception $e) {
@@ -103,7 +113,7 @@ class TransaksiController extends Controller
                 }
             ]
         )
-        ->where('nonota', $nonota)
+        ->where('no_nota', $nonota)
         ->orderBy('id', 'desc')
         ->get();
         return $list;
@@ -127,8 +137,27 @@ class TransaksiController extends Controller
             return new JsonResponse(['message' => 'Data Gagal Dihapus'],500);
         }
 
+         $rinciAll = Transaksirinci::where('id', $request->id)->get();
+        if(count($rinciAll) === 0){
+            $header = Transaksi::where('no_nota', $request->no_nota)->first();
+
+             if ($header) {
+                $header->delete();
+
+                return new JsonResponse([
+                    'message' => 'Data Berhasil dihapus',
+                    'data' => []
+                ], 200);
+            } else {
+                return new JsonResponse([
+                    'message' => 'Data header tidak ditemukan',
+                ], 404);
+            }
+
+        }
+
         return response()->json([
-            'message' => 'Gambar berhasil dihapus'
+            'message' => 'Data Berhasil dihapus'
         ], 200);
     }
 }

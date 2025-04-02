@@ -1,1 +1,0 @@
-import"./index-C65Hd5S6.js";const d=e=>e!==null&&e.length>9?e.replace(/(\d{3})(\d{2})(\d{3})(\d{4})/,"$1-$2-$3-$4"):e.replace(/(\d{3})(\d{3})/,"$1-$2"),a=(e,r)=>{if(e!==null)return"Rp. "+Number(e).toFixed(r).replace(".",",").replace(/(\d)(?=(\d{3})+(?!\d))/g,"$1.")},l=e=>{if(e!==null)return Number(e).toFixed(2).replace(/\d(?=(\d{3})+\.)/g,"$&,")};export{l as a,a as b,d as f};

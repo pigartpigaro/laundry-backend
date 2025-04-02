@@ -14,6 +14,10 @@ class SelectController extends Controller
     public function satuan_all()
     {
        $data = DB::table('satuans')
+       ->where(function($query) {
+        $query->where('flag', '!=', '1')
+            ->orWhereNull('flag');
+        })
        ->select('kodesatuan','satuan', 'flag')
        ->get();
 
@@ -22,6 +26,10 @@ class SelectController extends Controller
     public function satuan_filter()
     {
        $data = DB::table('satuans')
+       ->where(function($query) {
+        $query->where('flag', '!=', '1')
+            ->orWhereNull('flag');
+        })
         ->select('satuan', 'flag')
         ->where('satuan', 'like', '%' . request('q') . '%')
         ->limit(request('limit'))
@@ -33,6 +41,10 @@ class SelectController extends Controller
     public function kategori_all()
     {
        $data = DB::table('kategoris')
+       ->where(function($query) {
+        $query->where('flag', '!=', '1')
+            ->orWhereNull('flag');
+        })
        ->select('kodekategori','kategori','flag')
        ->get();
 
@@ -42,6 +54,10 @@ class SelectController extends Controller
     public function produk_all()
     {
        $data = DB::table('produks')
+       ->where(function($query) {
+        $query->where('flag', '!=', '1')
+            ->orWhereNull('flag');
+        })
        ->select('produks.*')
        ->get();
 
@@ -51,6 +67,10 @@ class SelectController extends Controller
     public function pelanggan_all()
     {
        $data = DB::table('pelanggans')
+       ->where(function($query) {
+        $query->where('flag', '!=', '1')
+            ->orWhereNull('flag');
+        })
        ->select('kodepelanggan','pelanggan','alamat','nohp', 'flag')
        ->get();
 

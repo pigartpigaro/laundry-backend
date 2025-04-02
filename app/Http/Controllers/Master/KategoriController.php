@@ -13,9 +13,11 @@ class KategoriController extends Controller
     public function listdata()
     {
 
-        $data = Kategori::where('flag', '=', '')
-        ->orWhere('flag', '=', null)
-        ->when(request('q') !== '' || request('q') !== null, function($x){
+        $data = Kategori::where(function($query) {
+        $query->where('flag', '!=', '1')
+            ->orWhereNull('flag');
+        })
+        ->when(request('q'), function($x){
            $x->where('kategori', 'like', '%' . request('q') . '%')
            ->orWhere('kodekategori', 'like', '%' . request('q') . '%');
         })

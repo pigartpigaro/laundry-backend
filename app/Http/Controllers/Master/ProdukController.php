@@ -13,9 +13,11 @@ class ProdukController extends Controller
     public function listdata()
     {
 
-        $data = Produk::where('flag', '=', '')
-        ->orWhere('flag', '=', null)
-        ->when(request('q') !== '' || request('q') !== null, function($x){
+        $data = Produk::where(function($query) {
+        $query->where('flag', '!=', '1')
+            ->orWhereNull('flag');
+        })
+        ->when(request('q'), function($x){
            $x->where('produk', 'like', '%' . request('q') . '%')
            ->orWhere('kodeproduk', 'like', '%' . request('q') . '%')
            ->orWhere('kategori', 'like', '%' . request('q') . '%')

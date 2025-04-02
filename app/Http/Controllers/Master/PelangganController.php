@@ -13,8 +13,11 @@ class PelangganController extends Controller
     public function listdata()
     {
 
-        $data = Pelanggan::whereNull('flag')
-        ->when(request('q') !== '' || request('q') !== null, function($x){
+        $data = Pelanggan::where(function($query) {
+        $query->where('flag', '!=', '1')
+            ->orWhereNull('flag');
+        })
+        ->when(request('q'), function($x){
            $x->where('pelanggan', 'like', '%' . request('q') . '%')
            ->orWhere('kodepelanggan', 'like', '%' . request('q') . '%');
         })
